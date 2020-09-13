@@ -50,6 +50,15 @@ app.get('/dna', (req, res, next) => {
     .catch(next);
 });
 
+app.get('/dna/:dna_id', (req, res, next) => {
+  const knexInstance = req.app.get('db');
+  DnaService.getById(knexInstance, req.params.dna_id)
+    .then((dna) => {
+      res.json(dna);
+    })
+    .catch(next);
+});
+
 app.post('/', (req, res) => {
   console.log(req.body);
   res.send('POST request received.');
