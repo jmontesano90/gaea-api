@@ -4,12 +4,12 @@ const morgan = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
 const { NODE_ENV } = require('./config');
-const DnaService = require('./DNA/dna-service');
 
 const app = express();
 
 const morganOption = NODE_ENV === 'production' ? 'tiny' : 'common';
 const winston = require('winston');
+const dnaRouter = require('./DNA/dna-router');
 
 app.use(morgan(morganOption));
 app.use(express.json());
@@ -41,23 +41,7 @@ if (NODE_ENV !== 'production') {
 //   next();
 // });
 
-app.get('/dna', (req, res, next) => {
-  const knexInstance = req.app.get('db');
-  DnaService.getAllDna(knexInstance)
-    .then((dna) => {
-      res.json(dna);
-    })
-    .catch(next);
-});
-
-app.get('/dna/:dna_id', (req, res, next) => {
-  const knexInstance = req.app.get('db');
-  DnaService.getById(knexInstance, req.params.dna_id)
-    .then((dna) => {
-      res.json(dna);
-    })
-    .catch(next);
-});
+app.use('/dna', dnaRouter);
 
 app.post('/', (req, res) => {
   console.log(req.body);

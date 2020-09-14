@@ -13,7 +13,7 @@ const DnaService = {
       .returning('*')
       .then(([Dna]) => Dna)
       .then((Dna) => {
-        return DnasService.getById(knex, Dna.id);
+        return DnaService.getById(knex, Dna.id);
       });
   },
   getByUserId(knex, userId) {
