@@ -72,21 +72,13 @@ dnaRouter
       .catch(next);
   });
 
-dnaRouter.route('/user/:user_id').all((req, res, next) => {
+dnaRouter.route('/user/:user_id').get((req, res) => {
   DnaService.getByUserId(req.app.get('db'), req.params.user_id)
     .then((dna) => {
-      if (!dna) {
-        return res.status(404).json({
-          error: { message: `User has no dna` },
-        });
-      }
-      res.dna = dna; // save the dna for the next middleware
-      next(); // don't forget to call next so the next middleware happens!
+      console.log('Ran inside the .then');
+      res.json(dna.map(DnaService.serializeDna));
     })
-    .get((req, res, next) => {
-      res.json(dna.map(serializeDna(dna)));
-    })
-    .catch(next);
+    .catch(console.log('Templates user error'));
 });
 
 module.exports = dnaRouter;
