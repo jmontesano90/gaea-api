@@ -5,12 +5,12 @@ const DnaService = require('./dna-service');
 const dnaRouter = express.Router();
 const jsonParser = express.json();
 
-const serializeDna = (dna) => ({
-  id: dna.id,
-  user_id: dna.user_id,
-  dna: dna.dna,
-  name: xss(dna.name), // sanitize name
-  comment: xss(dna.comment), // sanitize comment
+const serializeDna = (dnaInfo) => ({
+  id: dnaInfo.id,
+  user_id: dnaInfo.user_id,
+  dna: dnaInfo.dna,
+  name: xss(dnaInfo.name), // sanitize name
+  comment: xss(dnaInfo.comment), // sanitize comment
 });
 
 dnaRouter
@@ -24,8 +24,8 @@ dnaRouter
       .catch(next);
   })
   .post(jsonParser, (req, res, next) => {
-    const { name, dna, comment } = req.body;
-    const newDna = { name, dna, comment };
+    const { user_id, name, dna, comment } = req.body;
+    const newDna = { user_id, name, dna, comment };
     for (const [key, value] of Object.entries(newDna)) {
       if (value == null) {
         return res.status(400).json({
@@ -76,9 +76,11 @@ dnaRouter.route('/user/:user_id').get((req, res) => {
   DnaService.getByUserId(req.app.get('db'), req.params.user_id)
     .then((dna) => {
       console.log('Ran inside the .then');
+      console.log(dna);
+      console.log(dna.map(DnaService.serializeDna));
       res.json(dna.map(DnaService.serializeDna));
     })
-    .catch(console.log('Templates user error'));
+    .catch(console.log('Dna user error'));
 });
 
 module.exports = dnaRouter;

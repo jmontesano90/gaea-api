@@ -25,14 +25,14 @@ const DnaService = {
   deleteDna(knex, id) {
     return knex('gaea_dna').where({ id }).delete();
   },
-  serializeDna(Dna) {
-    const { user } = Dna;
+  serializeDna(dnaInfo) {
+    const { user } = dnaInfo;
     return {
-      id: Dna.id,
-      user_id: Dna.user_id,
-      name: Dna.name,
-      Dna: Dna.Dna,
-      comment: Dna.comment,
+      id: dnaInfo.id,
+      user_id: dnaInfo.user_id,
+      dnaStrand: dnaInfo.dna,
+      name: xss(dnaInfo.name), // sanitize name
+      comment: xss(dnaInfo.comment), // sanitize comment
     };
   },
 };

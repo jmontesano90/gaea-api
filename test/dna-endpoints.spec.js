@@ -19,7 +19,9 @@ describe('Dna Endpoints', function () {
   before('clean the table', () => db('gaea_dna').truncate());
   afterEach('cleanup', () => db('gaea_dna').truncate());
 
-  describe(`Get /dna`, () => {
+  // before -> insert some test users whose id's will match your testDNA
+
+  describe(`Get /api/dna`, () => {
     context('Given there is dna in the database', () => {
       const testDna = makeDnaArray();
 
@@ -27,13 +29,13 @@ describe('Dna Endpoints', function () {
         return db.into('gaea_dna').insert(testDna);
       });
 
-      it('GET /dna responds with 200 and all of the dna', () => {
-        return supertest(app).get('/dna').expect(200).expect(200, testDna);
+      it('GET /api/dna responds with 200 and all of the dna', () => {
+        return supertest(app).get('/api/dna').expect(200).expect(200, testDna);
       });
     });
     context(`Given no dna`, () => {
       it(`responds with 200 and an empty list`, () => {
-        return supertest(app).get('/dna').expect(200, []);
+        return supertest(app).get('/api/dna').expect(200, []);
       });
     });
 
@@ -46,7 +48,7 @@ describe('Dna Endpoints', function () {
 
       it('removes XSS attack content', () => {
         return supertest(app)
-          .get(`/dna`)
+          .get(`/api/dna`)
           .expect(200)
           .expect((res) => {
             expect(res.body[0].name).to.eql(expectedDna.name);
@@ -55,12 +57,12 @@ describe('Dna Endpoints', function () {
       });
     });
   });
-  describe(`Get /dna/:dna_id`, () => {
+  describe(`Get /api/dna/:dna_id`, () => {
     context(`Given no dna`, () => {
       it(`responds with 404`, () => {
         const dnaId = 123456;
         return supertest(app)
-          .get(`/dna/${dnaId}`)
+          .get(`/api/dna/${dnaId}`)
           .expect(404, { error: { message: `Dna doesn't exist` } });
       });
     });
@@ -70,10 +72,10 @@ describe('Dna Endpoints', function () {
       beforeEach('insert dna', () => {
         return db.into('gaea_dna').insert(testDna);
       });
-      it('GET /dna/:dna_id responds with 200 and the specified dna item', () => {
+      it('GET /api/dna/:dna_id responds with 200 and the specified dna item', () => {
         const dnaId = 2;
         const expectedDna = testDna[dnaId - 1];
-        return supertest(app).get(`/dna/${dnaId}`).expect(200, expectedDna);
+        return supertest(app).get(`/api/dna/${dnaId}`).expect(200, expectedDna);
       });
     });
 
@@ -91,7 +93,7 @@ describe('Dna Endpoints', function () {
 
       it('removes XSS attack content', () => {
         return supertest(app)
-          .get(`/dna/${maliciousDna.id}`)
+          .get(`/api/dna/${maliciousDna.id}`)
           .expect(200)
           .expect((res) => {
             expect(res.body.name).to.eql(
@@ -105,18 +107,20 @@ describe('Dna Endpoints', function () {
     });
   });
 
-  describe(`POST /dna`, () => {
+  describe(`POST /api/dna`, () => {
     it(`creates a dna strand, responding with 201 and the new dna strand`, function () {
       const newDna = {
+        user_id: 1,
         name: 'Test new Dna',
         dna: 'AaBbCcDdEeFfKkLlMmNnOoPp',
         comment: 'Test new dna comment...',
       };
       return supertest(app)
-        .post('/dna')
+        .post('/api/dna')
         .send(newDna)
         .expect(201)
         .expect((res) => {
+          expect(res.body.user_id).to.eql(newDna.user_id);
           expect(res.body.name).to.eql(newDna.name);
           expect(res.body.dna).to.eql(newDna.dna);
           expect(res.body.comment).to.eql(newDna.comment);
@@ -124,13 +128,14 @@ describe('Dna Endpoints', function () {
           expect(res.headers.location).to.eql(`/dna/${res.body.id}`);
         })
         .then((postRes) =>
-          supertest(app).get(`/dna/${postRes.body.id}`).expect(postRes.body)
+          supertest(app).get(`/api/dna/${postRes.body.id}`).expect(postRes.body)
         );
     });
-    const requiredFields = ['name', 'dna', 'comment'];
+    const requiredFields = ['user_id', 'name', 'dna', 'comment'];
 
     requiredFields.forEach((field) => {
       const newDna = {
+        user_id: 1,
         name: 'Test new Dna',
         dna: 'AaBbCcDdEeFfKkLlMmNnOoPp',
         comment: 'Test new dna comment...',
@@ -140,7 +145,7 @@ describe('Dna Endpoints', function () {
         delete newDna[field];
 
         return supertest(app)
-          .post('/dna')
+          .post('/api/dna')
           .send(newDna)
           .expect(400, {
             error: { message: `Missing '${field}' in request body` },
@@ -150,7 +155,7 @@ describe('Dna Endpoints', function () {
     it('removes XSS attack content from response', () => {
       const { maliciousDna, expectedDna } = makeMaliciousDna();
       return supertest(app)
-        .post(`/dna`)
+        .post(`/api/dna`)
         .send(maliciousDna)
         .expect(201)
         .expect((res) => {
@@ -160,7 +165,7 @@ describe('Dna Endpoints', function () {
     });
   });
 
-  describe(`DELETE /dna/:dna_id`, () => {
+  describe(`DELETE /api/dna/:dna_id`, () => {
     context('Given there are dnas in the database', () => {
       const testDna = makeDnaArray();
 
@@ -172,9 +177,9 @@ describe('Dna Endpoints', function () {
         const idToRemove = 2;
         const expectedDna = testDna.filter((dna) => dna.id !== idToRemove);
         return supertest(app)
-          .delete(`/Dna/${idToRemove}`)
+          .delete(`/api/dna/${idToRemove}`)
           .expect(204)
-          .then((res) => supertest(app).get(`/Dna`).expect(expectedDna));
+          .then((res) => supertest(app).get(`/api/dna`).expect(expectedDna));
       });
     });
   });

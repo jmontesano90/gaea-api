@@ -15,14 +15,14 @@ function makeDnaArray() {
       comment: 'Test 1 comment',
     },
     {
-      id: 1,
+      id: 3,
       user_id: 2,
       name: 'Test 1',
       dna: 'aabbccddeeffkkllmmnnoopp',
       comment: 'Test 1 comment',
     },
     {
-      id: 2,
+      id: 4,
       user_id: 2,
       name: 'Test 1',
       dna: 'aabbccddeeffkkllmmnnoopp',
@@ -34,6 +34,7 @@ function makeDnaArray() {
 function makeMaliciousDna() {
   const maliciousDna = {
     id: 911,
+    user_id: 1,
     dna: 'How-to',
     name: 'Naughty naughty very naughty <script>alert("xss");</script>',
     comment: `Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.`,

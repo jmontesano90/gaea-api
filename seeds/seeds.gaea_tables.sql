@@ -8,7 +8,8 @@ TRUNCATE
 INSERT INTO gaea_users (user_name, password)
 VALUES
 ('JOE', 'unecrypted'),
-('JOHN', 'unecrypted');
+('JOHN', 'unecrypted'),
+('TestLogin', '$2a$12$rNrkTFwfKYLnssvTiADnSe9fkIs7F.m1mUlGSeCxhFSSgZqGfbqQi');
 
 INSERT INTO gaea_dna (user_id, name, dna, comment)
 VALUES
