@@ -30,7 +30,6 @@
     "nodemon": "^2.0.3",
     "pg": "^8.3.3",
     "postgrator": "^4.0.0",
-    "postgrator-cli": "^3.2.0",
     "winston": "^3.3.3",
     "xss": "^1.0.8"
   },
